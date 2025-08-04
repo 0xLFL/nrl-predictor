@@ -35,10 +35,15 @@ type PageFetcher struct {
 
 func NewPageFetcher(maxConcurrent int) (*PageFetcher, error) {
 	allocCtx, allocCancel := chromedp.NewExecAllocator(context.Background(),
-		append(chromedp.DefaultExecAllocatorOptions[:],
-			// Add any flags like headless/gpu/image disabling here
+		append(
+			chromedp.DefaultExecAllocatorOptions[:],
+			chromedp.Flag("headless", true),                          // run in headless mode
+			chromedp.Flag("disable-gpu", true),                       // disable GPU
+			chromedp.Flag("blink-settings", "imagesEnabled=false"),   // disables images
+			chromedp.Flag("mute-audio", true),                        // mutes audio (optional)
 		)...,
 	)
+
 	browserCtx, cancel := chromedp.NewContext(allocCtx)
 	// Optional: run something small to ensure it boots
 	if err := chromedp.Run(browserCtx); err != nil {
@@ -173,7 +178,9 @@ func ScrapeSeason(season string, f Fetcher, wg *sync.WaitGroup) {
 		panic(err)
 	}
 
-	fmt.Println("Rounds found in %s: %v\n", season, rounds)
+	Reverse(rounds)
+	wg.Add(1)
+	scrapeRounds(rounds, season, f, wg)
 	return
 }
 
@@ -194,4 +201,10 @@ func writeToFile (content string, fileName string) {
 	}
 
 	fmt.Println("File written successfully.")
+}
+
+func Reverse[T any](arr []T) {
+	for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
+		arr[i], arr[j] = arr[j], arr[i]
+	}
 }
