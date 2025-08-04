@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"sync"
 	"github.com/chromedp/chromedp"
 	"context"
@@ -10,24 +11,61 @@ import (
 	"strings"
 )
 
+type Seasons struct {
+	year string
+	rounds []Round
+}
+
+type Competition struct {
+	seasons []Seasons
+}
+
 type Fetcher interface {
 	Fetch(url string, instructions chromedp.Tasks) (body string, err error)
-	FetchSeasons(f Fetcher, wg *sync.WaitGroup) ([]string)
+	FetchSeasons(wg *sync.WaitGroup) ([]string)
 	ParseList(html string, selector string) ([]string, error)
 	IsCached(url string) (cachedAt int)
 }
 
-type PageFetcher struct {}
+type PageFetcher struct {
+	allocCtx context.Context
+	browserCtx context.Context
+	semaphore chan struct{}
+}
 
-func (PageFetcher) Fetch(
+func NewPageFetcher(maxConcurrent int) (*PageFetcher, error) {
+	allocCtx, allocCancel := chromedp.NewExecAllocator(context.Background(),
+		append(chromedp.DefaultExecAllocatorOptions[:],
+			// Add any flags like headless/gpu/image disabling here
+		)...,
+	)
+	browserCtx, cancel := chromedp.NewContext(allocCtx)
+	// Optional: run something small to ensure it boots
+	if err := chromedp.Run(browserCtx); err != nil {
+		allocCancel()
+		cancel()
+		return nil, fmt.Errorf("failed to launch browser: %w", err)
+	}
+
+	return &PageFetcher{
+		allocCtx: allocCtx,
+		browserCtx: browserCtx,
+		semaphore: make(chan struct{}, maxConcurrent),
+	}, nil
+}
+
+func (p *PageFetcher) Fetch(
 	url string,
 	instructions chromedp.Tasks,
 ) (string, error) {
-	ctx, cancel := chromedp.NewContext(context.Background())
-	defer cancel()
+	p.semaphore <- struct{}{}
+	defer func() { <-p.semaphore }() 
 
-	ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
-	defer cancel()
+	ctx, browserCancel := chromedp.NewContext(p.browserCtx)
+	defer browserCancel()
+
+	ctx, timeoutCancel:= context.WithTimeout(ctx, 30*time.Second)
+	defer timeoutCancel()
 
 	var html string
 
@@ -52,24 +90,24 @@ func (PageFetcher) Fetch(
 	return html, nil
 }
 
-func (PageFetcher) FetchSeasons(f Fetcher, wg *sync.WaitGroup) (years []string) {
+func (pf PageFetcher) FetchSeasons(wg *sync.WaitGroup) (years []string) {
 	content := fmt.Sprintf(
-		f.Fetch(
-			"https://www.nrl.com/draw/?competition=111&round=22&season=2025",
+		pf.Fetch(
+			"https://www.nrl.com/draw/?competition=111&round=1&season=2025",
 			chromedp.Tasks{
 					chromedp.WaitVisible(`[aria-controls="season-dropdown"]`, chromedp.ByQuery),
 					chromedp.Click(`[aria-controls="season-dropdown"]`, chromedp.ByQuery),
 					chromedp.Sleep(2 * time.Second),
 			},
-		))
+	))
 
-		years, err := f.ParseList(content, "#season-dropdown li button div")
-		if err != nil {
-			panic(err)
-		}
+	years, err := pf.ParseList(content, "#season-dropdown li button div")
+	if err != nil {
+		panic(err)
+	}
 
-		fmt.Println("Years found:", years)
-		return
+	fmt.Println("Years found:", years)
+	return
 }
 
 func (PageFetcher) ParseList(html string, selector string) ([]string, error) {
@@ -95,7 +133,13 @@ func (PageFetcher) IsCached(url string) (int) {
 
 func main() {
 	var wg sync.WaitGroup
-	fetcher := PageFetcher{}
+	fetcher, err := NewPageFetcher(10)
+	
+	if err != nil {
+		fmt.Println("unable to creater page fatcher", err)
+		return
+	}
+
 	wg.Add(1)
 	go Scrape(fetcher, &wg)
 	wg.Wait()
@@ -103,9 +147,51 @@ func main() {
 
 func Scrape(f Fetcher, wg *sync.WaitGroup) {
 	defer wg.Done()
-	seasons := f.FetchSeasons(f, wg)
+	seasons := f.FetchSeasons(wg)
 	
-	for _, v := range seasons {
-		fmt.Println(v)
+	for _, s := range seasons {
+		wg.Add(1)
+		go ScrapeSeason(s, f, wg)
 	}
+}
+
+func ScrapeSeason(season string, f Fetcher, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	content := fmt.Sprintf(
+		f.Fetch(
+			fmt.Sprintf("https://www.nrl.com/draw/?competition=111&round=1&season=%s", season),
+			chromedp.Tasks{
+				chromedp.WaitVisible(`[aria-controls="round-dropdown"]`, chromedp.ByQuery),
+				chromedp.Click(`[aria-controls="round-dropdown"]`, chromedp.ByQuery),
+				chromedp.Sleep(2 * time.Second),
+			},
+	))
+
+	rounds, err := f.ParseList(content, "#round-dropdown li button div")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Rounds found in %s: %v\n", season, rounds)
+	return
+}
+
+func writeToFile (content string, fileName string) {
+	// Create or truncate the file
+	file, err := os.Create(fileName)
+	if err != nil {
+			fmt.Println("Error creating file:", err)
+			return
+	}
+	defer file.Close()
+
+	// Write to the file
+	_, err = file.WriteString(content)
+	if err != nil {
+			fmt.Println("Error writing to file:", err)
+			return
+	}
+
+	fmt.Println("File written successfully.")
 }
