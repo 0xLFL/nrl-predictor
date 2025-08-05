@@ -12,7 +12,7 @@ import (
 )
 
 type Play struct {
-	time int
+	time string
 	play string
 	team string
 	notes string
@@ -167,6 +167,16 @@ type Match struct {
 	stats *MatchStats
 }
 
+func (p *Play) String() string {
+	return fmt.Sprintf(`
+	{ 
+		"play": "%s",
+		"team": "%s",
+		"notes": "%s",
+		"time": "%s"
+	}`, p.play, p.team, p.notes, p.time)
+}
+
 func (p *Player) String() string {
 	return fmt.Sprintf(`
 	{ 
@@ -178,23 +188,12 @@ func (p *Player) String() string {
 	}`, p.nameFirst, p.nameLast, p.position, p.number)
 }
 
-func createTeamListString(teamList []*Player) (str string) {
-	str = "["
-	for i, v := range teamList {
-		str += v.String()
-
-		if i < len(teamList) - 1 {
-			str += ", "
-		}
-	}
-
-	str += "]"
-	return
-}
-
 func (m Match) String() string {
-	homeTeamList := createTeamListString(m.homeTeamList)
-	awayTeamList := createTeamListString(m.awayTeamList)
+	homeTeamList := createListStr(m.homeTeamList)
+	awayTeamList := createListStr(m.awayTeamList)
+	playByPlay := createListStr(m.playByPlay)
+
+	fmt.Println(len(m.playByPlay), m.playByPlay)
 
 	return fmt.Sprintf(`
 		{ "homeTeam": "%s",
@@ -207,7 +206,7 @@ func (m Match) String() string {
 		"location": "%s",
 		"datePlayed": "%s",
 		"weather":	"%s",
-		"playByPlay": "",
+		"playByPlay": %s,
 		"stats": ""}`,
 		m.homeTeam,
 		m.homeScore,
@@ -218,6 +217,7 @@ func (m Match) String() string {
 		m.location,
 		m.datePlayed,
 		m.weather,
+		playByPlay,
 	)
 }
 
@@ -225,16 +225,53 @@ func scrapeMatch(m *Match, url string, f Fetcher, wg *sync.WaitGroup, stats *Sta
 	defer wg.Done()
 
 	wg.Add(3)
-	go scrapePlaybyPlay(m.playByPlay, url, f, wg,  stats)
+	go scrapePlaybyPlay(&m.playByPlay, url, f, wg, stats)
 	go scrapeTeamList(m, url, f, wg, stats)
 	go scrapeMatchStats(m.stats, url, f, wg, stats)
 }
 
-func scrapePlaybyPlay(playByPlay []*Play, url string, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
+func scrapePlaybyPlay(playByPlay *[]*Play, url string, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
 	defer wg.Done()
 	
 	stats.Start()
 	defer stats.Finish()
+
+	selector := `//a[.//span[contains(text(), "Team Lists")]]`
+	content, err := f.Fetch(
+		fmt.Sprintf("https://www.nrl.com/%s", url),
+		chromedp.Tasks{
+			chromedp.WaitVisible(selector, chromedp.BySearch),
+			chromedp.Click(selector, chromedp.BySearch),
+			chromedp.Sleep(2 * time.Second),
+		},
+		true,
+	)
+
+	writeToFile(content, "out.html")
+
+	if err == nil {
+		doc, _ := goquery.NewDocumentFromReader(strings.NewReader(content))
+		doc.Find("div.match-centre-event").Each(func(_ int, b *goquery.Selection) {
+			play := &Play{}
+			b.Find(".match-centre-event__team-name").Each(func(_ int, s *goquery.Selection) {
+				play.team = strings.TrimSpace(s.Text())
+			})
+
+			b.Find(".match-centre-event__title").Each(func(_ int, s *goquery.Selection) {
+				play.play = strings.TrimSpace(s.Text())
+			})
+
+			b.Find("p.u-font-weight-500").Each(func(_ int, s *goquery.Selection) {
+				play.notes = strings.TrimSpace(s.Text())
+			})
+
+			b.Find("span.match-centre-event__timestamp").Each(func(_ int, s *goquery.Selection) {
+				play.time = strings.TrimSpace(s.Text())
+			})
+
+			*playByPlay = append(*playByPlay, play)
+		})
+	}
 }
 
 func scrapeTeamList(m *Match, url string, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
@@ -243,12 +280,13 @@ func scrapeTeamList(m *Match, url string, f Fetcher, wg *sync.WaitGroup, stats *
 	stats.Start()
 	defer stats.Finish()
 
+	selector := `//a[.//span[contains(text(), "Team Lists")]]`
 	content, err := f.Fetch(
 			fmt.Sprintf("https://www.nrl.com/%s", url),
 			chromedp.Tasks{
+				chromedp.WaitVisible(selector, chromedp.BySearch),
+				chromedp.Click(selector, chromedp.BySearch),
 				chromedp.Sleep(2 * time.Second),
-				chromedp.Click(`//a[.//span[contains(text(), "Team Lists")]]`, chromedp.BySearch),
-				chromedp.Sleep(1 * time.Second),
 			},
 			true,
 	)
@@ -257,6 +295,10 @@ func scrapeTeamList(m *Match, url string, f Fetcher, wg *sync.WaitGroup, stats *
 	if err == nil {
 		doc, err = goquery.NewDocumentFromReader(strings.NewReader(content))
 		m.homeTeamList, m.awayTeamList, _ = ExtractTeamPlayers(doc)
+	
+		if len(m.homeTeamList) == 0 || len(m.awayTeamList) == 0 {
+			fmt.Println(content)
+		}
 		
 	} else {
 		content, err = f.Fetch(
@@ -355,7 +397,6 @@ func ExtractTeamPlayers(doc *goquery.Document) ([]*Player, []*Player, error) {
 		b.Find(".team-list-profile:not(.team-list-profile--away) > div.team-list-profile-content > div.team-list-profile__name").Each(func(_ int, s *goquery.Selection) {
 			str := strings.TrimSpace(s.Text())
 			name := strings.Fields(str)
-			fmt.Println(str, name)
 			
 			if len(name) >= 2 {
 				pHome.nameFirst = name[0]
@@ -366,7 +407,6 @@ func ExtractTeamPlayers(doc *goquery.Document) ([]*Player, []*Player, error) {
 		b.Find(".team-list-profile:not(.team-list-profile--home) > div.team-list-profile-content > div.team-list-profile__name").Each(func(_ int, s *goquery.Selection) {
 			str := strings.TrimSpace(s.Text())
 			name := strings.Fields(str)
-			fmt.Println(str, name)
 
 			if len(name) >= 2 {
 				pAway.nameFirst = name[0]
@@ -377,7 +417,6 @@ func ExtractTeamPlayers(doc *goquery.Document) ([]*Player, []*Player, error) {
 		hPlayers = append(hPlayers, pHome)
 		aPlayers = append(aPlayers, pAway)
 	})
-
 
 	return hPlayers, aPlayers, nil
 }

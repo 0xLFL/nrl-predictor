@@ -33,6 +33,21 @@ type PageFetcher struct {
 	semaphore chan struct{}
 }
 
+func createListStr[T fmt.Stringer](list []T) string {
+	var sb strings.Builder
+	sb.WriteString("[")
+
+	for i, v := range list {
+		sb.WriteString(v.String())
+		if i < len(list)-1 {
+			sb.WriteString(", ")
+		}
+	}
+
+	sb.WriteString("]")
+	return sb.String()
+}
+
 func (c Competition) String() string {
 	result := "{"
 	i := 0
@@ -48,16 +63,7 @@ func (c Competition) String() string {
 }
 
 func (s *Season) String() string {
-	result := fmt.Sprintf("\"%s\": ", s.year)
-	result += "["
-	for i, round := range s.rounds {
-		result += round.String()
-		if i < len(s.rounds)-1 {
-			result += ","
-		}
-	}
-	result += "]"
-	return result
+	return fmt.Sprintf("\"%s\": %s", s.year, createListStr(s.rounds))
 }
 
 func NewPageFetcher(maxConcurrent int) (*PageFetcher, error) {
