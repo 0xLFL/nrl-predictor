@@ -11,17 +11,17 @@ import (
 	"strings"
 )
 
-type Seasons struct {
+type Season struct {
 	year string
-	rounds []Round
+	rounds []*Round
 }
 
 type Competition struct {
-	seasons []Seasons
+	seasons map[string]*Season
 }
 
 type Fetcher interface {
-	Fetch(url string, instructions chromedp.Tasks) (body string, err error)
+	Fetch(url string, instructions chromedp.Tasks, require bool) (body string, err error)
 	FetchSeasons(wg *sync.WaitGroup) ([]string)
 	ParseList(html string, selector string) ([]string, error)
 	IsCached(url string) (cachedAt int)
@@ -31,6 +31,33 @@ type PageFetcher struct {
 	allocCtx context.Context
 	browserCtx context.Context
 	semaphore chan struct{}
+}
+
+func (c Competition) String() string {
+	result := "{"
+	i := 0
+	for _, round := range c.seasons {
+		result += round.String()
+		if i < len(c.seasons)-1 {
+			result += ","
+		}
+		i++
+	}
+
+	return result + "}"
+}
+
+func (s *Season) String() string {
+	result := fmt.Sprintf("\"%s\": ", s.year)
+	result += "["
+	for i, round := range s.rounds {
+		result += round.String()
+		if i < len(s.rounds)-1 {
+			result += ","
+		}
+	}
+	result += "]"
+	return result
 }
 
 func NewPageFetcher(maxConcurrent int) (*PageFetcher, error) {
@@ -62,6 +89,7 @@ func NewPageFetcher(maxConcurrent int) (*PageFetcher, error) {
 func (p *PageFetcher) Fetch(
 	url string,
 	instructions chromedp.Tasks,
+	require bool,
 ) (string, error) {
 	p.semaphore <- struct{}{}
 	defer func() { <-p.semaphore }() 
@@ -69,7 +97,7 @@ func (p *PageFetcher) Fetch(
 	ctx, browserCancel := chromedp.NewContext(p.browserCtx)
 	defer browserCancel()
 
-	ctx, timeoutCancel:= context.WithTimeout(ctx, 30*time.Second)
+	ctx, timeoutCancel:= context.WithTimeout(ctx, 60*time.Second)
 	defer timeoutCancel()
 
 	var html string
@@ -88,11 +116,18 @@ func (p *PageFetcher) Fetch(
 	// Always get the HTML at the end
 	tasks = append(tasks, chromedp.OuterHTML("html", &html))
 
-	if err := chromedp.Run(ctx, tasks); err != nil {
-		return "", err
+	err := chromedp.Run(ctx, tasks)
+	for i := 0; i < 4; i++ {
+		if err == nil {
+			return html, nil
+		} else if !require {
+			return "", err
+		}
+
+		err = chromedp.Run(ctx, tasks);
 	}
 
-	return html, nil
+	return "", err
 }
 
 func (pf PageFetcher) FetchSeasons(wg *sync.WaitGroup) (years []string) {
@@ -104,6 +139,7 @@ func (pf PageFetcher) FetchSeasons(wg *sync.WaitGroup) (years []string) {
 					chromedp.Click(`[aria-controls="season-dropdown"]`, chromedp.ByQuery),
 					chromedp.Sleep(2 * time.Second),
 			},
+			true,
 	))
 
 	years, err := pf.ParseList(content, "#season-dropdown li button div")
@@ -111,7 +147,6 @@ func (pf PageFetcher) FetchSeasons(wg *sync.WaitGroup) (years []string) {
 		panic(err)
 	}
 
-	fmt.Println("Years found:", years)
 	return
 }
 
@@ -145,32 +180,68 @@ func main() {
 		return
 	}
 
-	wg.Add(1)
-	go Scrape(fetcher, &wg)
-	wg.Wait()
+	writeToFile(Scrape(fetcher, &wg).String(), "out.json")
 }
 
-func Scrape(f Fetcher, wg *sync.WaitGroup) {
-	defer wg.Done()
+func Scrape(f Fetcher, wg *sync.WaitGroup) (comp Competition) {
 	seasons := f.FetchSeasons(wg)
+	comp = Competition{
+		seasons: map[string]*Season{},
+	}
+
+	stats := &StatsTracker{}
+
+	done := make(chan struct{})
+	go func() {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ticker.C:
+				fmt.Printf("Started: %d, Finished: %d, Active: %d\n",
+					stats.Started(), stats.Finished(), stats.Active())
+				// writeToFile(comp.String(), "out.json") 
+			case <-done:
+				return
+			}
+		}
+	}()
+
 	
 	for _, s := range seasons {
-		wg.Add(1)
-		go ScrapeSeason(s, f, wg)
+		if s == "2016" {
+			wg.Add(1)
+			season := &Season{
+				year:   s,
+				rounds: []*Round{},
+			}
+		
+			comp.seasons[s] = season
+		
+			go ScrapeSeason(season, f, wg, stats)
+		}
 	}
+
+	wg.Wait()
+	close(done)
+	fmt.Println("All jobs complete.")
+	return
 }
 
-func ScrapeSeason(season string, f Fetcher, wg *sync.WaitGroup) {
+func ScrapeSeason(season *Season, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
 	defer wg.Done()
+	stats.Start()
+	defer stats.Finish()
 
 	content := fmt.Sprintf(
 		f.Fetch(
-			fmt.Sprintf("https://www.nrl.com/draw/?competition=111&round=1&season=%s", season),
+			fmt.Sprintf("https://www.nrl.com/draw/?competition=111&round=1&season=%s", season.year),
 			chromedp.Tasks{
 				chromedp.WaitVisible(`[aria-controls="round-dropdown"]`, chromedp.ByQuery),
 				chromedp.Click(`[aria-controls="round-dropdown"]`, chromedp.ByQuery),
 				chromedp.Sleep(2 * time.Second),
 			},
+			true,
 	))
 
 	rounds, err := f.ParseList(content, "#round-dropdown li button div")
@@ -180,7 +251,7 @@ func ScrapeSeason(season string, f Fetcher, wg *sync.WaitGroup) {
 
 	Reverse(rounds)
 	wg.Add(1)
-	scrapeRounds(rounds, season, f, wg)
+	scrapeRounds(rounds, season, f, wg, stats)
 	return
 }
 

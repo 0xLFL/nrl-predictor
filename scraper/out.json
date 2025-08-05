@@ -1,0 +1,1888 @@
+{
+	"2016": [
+		{
+			"round": "Round 1",
+			"weekIndex": "1",
+			"startDay": "Thursday 3rd March",
+			"endDay": "Monday 7th March",
+			"matches": [
+				{
+					"homeTeam": "Eels",
+					"homeScore": 4,
+					"homeTeamList": [
+						{
+							"nameFirst": "Michael",
+							"nameLast": "Gordon",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Semi",
+							"nameLast": "Radradra",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Michael",
+							"nameLast": "Jennings",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Brad",
+							"nameLast": "Takairangi",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Clinton",
+							"nameLast": "Gutherson",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Corey",
+							"nameLast": "Norman",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Luke",
+							"nameLast": "Kelly",
+							"position": "Halfback",
+							"number": 19,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Junior",
+							"nameLast": "Paulo",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Nathan",
+							"nameLast": "Peats",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tim",
+							"nameLast": "Mannah",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Manu",
+							"nameLast": "Ma'u",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Beau",
+							"nameLast": "Scott",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tepai",
+							"nameLast": "Moeroa",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Peni",
+							"nameLast": "Terepo",
+							"position": "Interchange",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Daniel",
+							"nameLast": "Alvaro",
+							"position": "Interchange",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kenny",
+							"nameLast": "Edwards",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kaysa",
+							"nameLast": "Pritchard",
+							"position": "Interchange",
+							"number": 18,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Brad",
+							"nameLast": "Arthur",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"awayTeam": "Broncos",
+					"awayScore": 17,
+					"awayTeamList": [
+						{
+							"nameFirst": "Darius",
+							"nameLast": "Boyd",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Corey",
+							"nameLast": "Oates",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jordan",
+							"nameLast": "Kahu",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "James",
+							"nameLast": "Roberts",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Greg",
+							"nameLast": "Eden",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Anthony",
+							"nameLast": "Milford",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ben",
+							"nameLast": "Hunt",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Josh",
+							"nameLast": "McGuire",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Andrew",
+							"nameLast": "McCullough",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Adam",
+							"nameLast": "Blair",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Alex",
+							"nameLast": "Glenn",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Matt",
+							"nameLast": "Gillett",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Corey",
+							"nameLast": "Parker",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jarrod",
+							"nameLast": "Wallace",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Sam",
+							"nameLast": "Thaiday",
+							"position": "Interchange",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Joe",
+							"nameLast": "Ofahengaue",
+							"position": "Interchange",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kodi",
+							"nameLast": "Nikorima",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "",
+							"nameLast": "",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"matchOfficals": "",
+					"location": "CommBank Stadium, Sydney",
+					"datePlayed": "Round 1 - Thursday 3rd March",
+					"weather": "Fine",
+					"playByPlay": "",
+					"stats": ""
+				},
+				{
+					"homeTeam": "Sea Eagles",
+					"homeScore": 6,
+					"homeTeamList": [
+						{
+							"nameFirst": "Tom",
+							"nameLast": "Trbojevic",
+							"position": "Fullback",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jorge",
+							"nameLast": "Taufua",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jamie",
+							"nameLast": "Lyon",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Steve",
+							"nameLast": "Matai",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Brayden",
+							"nameLast": "Wiliame",
+							"position": "Winger",
+							"number": 20,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Dylan",
+							"nameLast": "Walker",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Daly",
+							"nameLast": "Cherry-Evans",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jake",
+							"nameLast": "Trbojevic",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Apisai",
+							"nameLast": "Koroisau",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Nate",
+							"nameLast": "Myles",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Lewis",
+							"nameLast": "Brown",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Nathan",
+							"nameLast": "Green",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Martin",
+							"nameLast": "Taupau",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Matt",
+							"nameLast": "Parcell",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Blake",
+							"nameLast": "Leary",
+							"position": "Interchange",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Darcy",
+							"nameLast": "Lussick",
+							"position": "Interchange",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Siosaia",
+							"nameLast": "Vave",
+							"position": "Interchange",
+							"number": 18,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Trent",
+							"nameLast": "Barrett",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"awayTeam": "Bulldogs",
+					"awayScore": 28,
+					"awayTeamList": [
+						{
+							"nameFirst": "Will",
+							"nameLast": "Hopoate",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Curtis",
+							"nameLast": "Rona",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Josh",
+							"nameLast": "Morris",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Chase",
+							"nameLast": "Stanley",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Sam",
+							"nameLast": "Perrett",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Josh",
+							"nameLast": "Reynolds",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Moses",
+							"nameLast": "Mbye",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Aiden",
+							"nameLast": "Tolman",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Michael",
+							"nameLast": "Lichaa",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "James",
+							"nameLast": "Graham",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Josh",
+							"nameLast": "Jackson",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tony",
+							"nameLast": "Williams",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Greg",
+							"nameLast": "Eastwood",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Sam",
+							"nameLast": "Kasiano",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tim",
+							"nameLast": "Browne",
+							"position": "Interchange",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Adam",
+							"nameLast": "Elliott",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Lloyd",
+							"nameLast": "Perrett",
+							"position": "Interchange",
+							"number": 22,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "",
+							"nameLast": "",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"matchOfficals": "",
+					"location": "4 Pines Park, Sydney",
+					"datePlayed": "Round 1 - Friday 4th March",
+					"weather": "Fine",
+					"playByPlay": "",
+					"stats": ""
+				},
+				{
+					"homeTeam": "Raiders",
+					"homeScore": 30,
+					"homeTeamList": [],
+					"awayTeam": "Panthers",
+					"awayScore": 22,
+					"awayTeamList": [],
+					"matchOfficals": "",
+					"location": "GIO Stadium, Canberra",
+					"datePlayed": "Round 1 - Saturday 5th March",
+					"weather": "Fine",
+					"playByPlay": "",
+					"stats": ""
+				},
+				{
+					"homeTeam": "Wests Tigers",
+					"homeScore": 34,
+					"homeTeamList": [
+						{
+							"nameFirst": "James",
+							"nameLast": "Tedesco",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "David",
+							"nameLast": "Nofoaluma",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tim",
+							"nameLast": "Simona",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kevin",
+							"nameLast": "Naiqama",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jordan",
+							"nameLast": "Rankin",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Mitchell",
+							"nameLast": "Moses",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jack",
+							"nameLast": "Littlejohn",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Aaron",
+							"nameLast": "Woods",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kyle",
+							"nameLast": "Lovett",
+							"position": "Hooker",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tim",
+							"nameLast": "Grant",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Curtis",
+							"nameLast": "Sironen",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Chris",
+							"nameLast": "Lawrence",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Sauaso",
+							"nameLast": "Sue",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Manaia",
+							"nameLast": "Cherrington",
+							"position": "Interchange",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Josh",
+							"nameLast": "Aloiai",
+							"position": "Interchange",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ava",
+							"nameLast": "Seumanufagai",
+							"position": "Interchange",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jack",
+							"nameLast": "Buchanan",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						}
+					],
+					"awayTeam": "Warriors",
+					"awayScore": 26,
+					"awayTeamList": [
+						{
+							"nameFirst": "Roger",
+							"nameLast": "Tuivasa-Sheck",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tuimoala",
+							"nameLast": "Lolohea",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Blake",
+							"nameLast": "Ayshford",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Solomone",
+							"nameLast": "Kata",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Manu",
+							"nameLast": "Vatuvei",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Shaun",
+							"nameLast": "Johnson",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jeff",
+							"nameLast": "Robson",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jacob",
+							"nameLast": "Lillyman",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Issac",
+							"nameLast": "Luke",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "James",
+							"nameLast": "Gavet",
+							"position": "Prop",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ben",
+							"nameLast": "Henry",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ryan",
+							"nameLast": "Hoffman",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Simon",
+							"nameLast": "Mannering",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ben",
+							"nameLast": "Matulino",
+							"position": "Interchange",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Nathaniel",
+							"nameLast": "Roache",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Sam",
+							"nameLast": "Lisone",
+							"position": "Interchange",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Bodene",
+							"nameLast": "Thompson",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						}
+					],
+					"matchOfficals": "",
+					"location": "Campbelltown Sports Stadium, Sydney",
+					"datePlayed": "Round 1 - Saturday 5th March",
+					"weather": "Fine",
+					"playByPlay": "",
+					"stats": ""
+				},
+				{
+					"homeTeam": "Cowboys",
+					"homeScore": 20,
+					"homeTeamList": [
+						{
+							"nameFirst": "Lachlan",
+							"nameLast": "Coote",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kyle",
+							"nameLast": "Feldt",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Justin",
+							"nameLast": "O'Neill",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kane",
+							"nameLast": "Linnett",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Antonio",
+							"nameLast": "Winterstein",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Michael",
+							"nameLast": "Morgan",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Johnathan",
+							"nameLast": "Thurston",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Matthew",
+							"nameLast": "Scott",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jake",
+							"nameLast": "Granville",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "James",
+							"nameLast": "Tamou",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Gavin",
+							"nameLast": "Cooper",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ethan",
+							"nameLast": "Lowe",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jason",
+							"nameLast": "Taumalolo",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Rory",
+							"nameLast": "Kostjasyn",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "John",
+							"nameLast": "Asiata",
+							"position": "Interchange",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Scott",
+							"nameLast": "Bolton",
+							"position": "Interchange",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ben",
+							"nameLast": "Hannant",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Paul",
+							"nameLast": "Green",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"awayTeam": "Sharks",
+					"awayScore": 14,
+					"awayTeamList": [
+						{
+							"nameFirst": "Ben",
+							"nameLast": "Barba",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Sosaia",
+							"nameLast": "Feki",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jack",
+							"nameLast": "Bird",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ricky",
+							"nameLast": "Leutele",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Valentine",
+							"nameLast": "Holmes",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "James",
+							"nameLast": "Maloney",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Chad",
+							"nameLast": "Townsend",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Andrew",
+							"nameLast": "Fifita",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Michael",
+							"nameLast": "Ennis",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Matt",
+							"nameLast": "Prior",
+							"position": "Prop",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Luke",
+							"nameLast": "Lewis",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Wade",
+							"nameLast": "Graham",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Paul",
+							"nameLast": "Gallen",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Sam",
+							"nameLast": "Tagataese",
+							"position": "Interchange",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Chris",
+							"nameLast": "Heighington",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "David",
+							"nameLast": "Fifita",
+							"position": "Interchange",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jayson",
+							"nameLast": "Bukuya",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Shane",
+							"nameLast": "Flanagan",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"matchOfficals": "",
+					"location": "1300SMILES Stadium, Townsville",
+					"datePlayed": "Round 1 - Saturday 5th March",
+					"weather": "Rain and Thunder",
+					"playByPlay": "",
+					"stats": ""
+				},
+				{
+					"homeTeam": "Roosters",
+					"homeScore": 10,
+					"homeTeamList": [
+						{
+							"nameFirst": "Blake",
+							"nameLast": "Ferguson",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Latrell",
+							"nameLast": "Mitchell",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Dale",
+							"nameLast": "Copley",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Shaun",
+							"nameLast": "Kenny-Dowall",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Joe",
+							"nameLast": "Burgess",
+							"position": "Winger",
+							"number": 19,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jayden",
+							"nameLast": "Nikorima",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jackson",
+							"nameLast": "Hastings",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kane",
+							"nameLast": "Evans",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jake",
+							"nameLast": "Friend",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Dylan",
+							"nameLast": "Napa",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Aidan",
+							"nameLast": "Guerra",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Mitchell",
+							"nameLast": "Aubusson",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Isaac",
+							"nameLast": "Liu",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Siosiua",
+							"nameLast": "Taukeiaho",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Sam",
+							"nameLast": "Moa",
+							"position": "Interchange",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ian",
+							"nameLast": "Henderson",
+							"position": "Interchange",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Vincent",
+							"nameLast": "Leuluai",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Trent",
+							"nameLast": "Robinson",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"awayTeam": "Rabbitohs",
+					"awayScore": 42,
+					"awayTeamList": [
+						{
+							"nameFirst": "Greg",
+							"nameLast": "Inglis",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Alex",
+							"nameLast": "Johnston",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Bryson",
+							"nameLast": "Goodwin",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Hymel",
+							"nameLast": "Hunt",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Aaron",
+							"nameLast": "Gray",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Cody",
+							"nameLast": "Walker",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Adam",
+							"nameLast": "Reynolds",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Sam",
+							"nameLast": "Burgess",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Cameron",
+							"nameLast": "McInnes",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "David",
+							"nameLast": "Tyrrell",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Paul",
+							"nameLast": "Carter",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "John",
+							"nameLast": "Sutton",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kyle",
+							"nameLast": "Turner",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Damien",
+							"nameLast": "Cook",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jason",
+							"nameLast": "Clark",
+							"position": "Interchange",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Chris",
+							"nameLast": "Grevsmuhl",
+							"position": "Interchange",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Zane",
+							"nameLast": "Musgrove",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "",
+							"nameLast": "",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"matchOfficals": "",
+					"location": "Allianz Stadium, Sydney",
+					"datePlayed": "Round 1 - Sunday 6th March",
+					"weather": "Fine",
+					"playByPlay": "",
+					"stats": ""
+				},
+				{
+					"homeTeam": "Titans",
+					"homeScore": 30,
+					"homeTeamList": [
+						{
+							"nameFirst": "David",
+							"nameLast": "Mead",
+							"position": "Fullback",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Anthony",
+							"nameLast": "Don",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Josh",
+							"nameLast": "Hoffman",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Nathan",
+							"nameLast": "Davis",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "John",
+							"nameLast": "Olive",
+							"position": "Winger",
+							"number": 20,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tyrone",
+							"nameLast": "Roberts",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ashley",
+							"nameLast": "Taylor",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "David",
+							"nameLast": "Shillington",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Nathan",
+							"nameLast": "Friend",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Agnatius",
+							"nameLast": "Paasi",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Zeb",
+							"nameLast": "Taia",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Chris",
+							"nameLast": "McQueen",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Greg",
+							"nameLast": "Bird",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Eddy",
+							"nameLast": "Pettybourne",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ryan",
+							"nameLast": "James",
+							"position": "Interchange",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Leivaha",
+							"nameLast": "Pulu",
+							"position": "Interchange",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Daniel",
+							"nameLast": "Mortimer",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "",
+							"nameLast": "",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"awayTeam": "Knights",
+					"awayScore": 12,
+					"awayTeamList": [
+						{
+							"nameFirst": "Jaelen",
+							"nameLast": "Feeney",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Chanel",
+							"nameLast": "Mata'utia",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Dane",
+							"nameLast": "Gagai",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Pat",
+							"nameLast": "Mata'utia",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Akuila",
+							"nameLast": "Uate",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jarrod",
+							"nameLast": "Mullen",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Trent",
+							"nameLast": "Hodkinson",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kade",
+							"nameLast": "Snowden",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tyler",
+							"nameLast": "Randell",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Sam",
+							"nameLast": "Mataora",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jacob",
+							"nameLast": "Saifiti",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Robbie",
+							"nameLast": "Rochow",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jeremy",
+							"nameLast": "Smith",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "David",
+							"nameLast": "Bhana",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Korbin",
+							"nameLast": "Sims",
+							"position": "Interchange",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Pauli",
+							"nameLast": "Pauli",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Daniel",
+							"nameLast": "Saifiti",
+							"position": "Interchange",
+							"number": 18,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Nathan",
+							"nameLast": "Brown",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"matchOfficals": "",
+					"location": "Cbus Super Stadium, Gold Coast",
+					"datePlayed": "Round 1 - Sunday 6th March",
+					"weather": "Partly Cloudy",
+					"playByPlay": "",
+					"stats": ""
+				},
+				{
+					"homeTeam": "Storm",
+					"homeScore": 18,
+					"homeTeamList": [
+						{
+							"nameFirst": "Billy",
+							"nameLast": "Slater",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Young",
+							"nameLast": "Tonumaipea",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Will",
+							"nameLast": "Chambers",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Cameron",
+							"nameLast": "Munster",
+							"position": "Centre",
+							"number": 20,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Marika",
+							"nameLast": "Koroibete",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Blake",
+							"nameLast": "Green",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Cooper",
+							"nameLast": "Cronk",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jesse",
+							"nameLast": "Bromwich",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Cameron",
+							"nameLast": "Smith",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jordan",
+							"nameLast": "McLean",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kevin",
+							"nameLast": "Proctor",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tohu",
+							"nameLast": "Harris",
+							"position": "2nd Row",
+							"number": 12,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Dale",
+							"nameLast": "Finucane",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Kenneath",
+							"nameLast": "Bromwich",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tim",
+							"nameLast": "Glasby",
+							"position": "Interchange",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Christian",
+							"nameLast": "Welch",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Felise",
+							"nameLast": "Kaufusi",
+							"position": "Interchange",
+							"number": 18,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Craig",
+							"nameLast": "Bellamy",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"awayTeam": "Dragons",
+					"awayScore": 16,
+					"awayTeamList": [
+						{
+							"nameFirst": "Kurt",
+							"nameLast": "Mann",
+							"position": "Fullback",
+							"number": 1,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Euan",
+							"nameLast": "Aitken",
+							"position": "Winger",
+							"number": 2,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Josh",
+							"nameLast": "Dugan",
+							"position": "Centre",
+							"number": 3,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tim",
+							"nameLast": "Lafai",
+							"position": "Centre",
+							"number": 4,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jason",
+							"nameLast": "Nightingale",
+							"position": "Winger",
+							"number": 5,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Gareth",
+							"nameLast": "Widdop",
+							"position": "Five-Eighth",
+							"number": 6,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Benji",
+							"nameLast": "Marshall",
+							"position": "Halfback",
+							"number": 7,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Leeson",
+							"nameLast": "Ah",
+							"position": "Prop",
+							"number": 8,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Mitch",
+							"nameLast": "Rein",
+							"position": "Hooker",
+							"number": 9,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Russell",
+							"nameLast": "Packer",
+							"position": "Prop",
+							"number": 10,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Will",
+							"nameLast": "Matthews",
+							"position": "2nd Row",
+							"number": 11,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Jack",
+							"nameLast": "De",
+							"position": "2nd Row",
+							"number": 15,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Mike",
+							"nameLast": "Cooper",
+							"position": "Lock",
+							"number": 13,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Ben",
+							"nameLast": "Creagh",
+							"position": "Interchange",
+							"number": 14,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Dunamis",
+							"nameLast": "Lui",
+							"position": "Interchange",
+							"number": 16,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Siliva",
+							"nameLast": "Havili",
+							"position": "Interchange",
+							"number": 17,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Tyson",
+							"nameLast": "Frizell",
+							"position": "Interchange",
+							"number": 21,
+							"playerStats": ""
+						},
+						{
+							"nameFirst": "Paul",
+							"nameLast": "McGregor",
+							"position": "Coach",
+							"number": 0,
+							"playerStats": ""
+						}
+					],
+					"matchOfficals": "",
+					"location": "AAMI Park, Melbourne",
+					"datePlayed": "Round 1 - Monday 7th March",
+					"weather": "Fine",
+					"playByPlay": "",
+					"stats": ""
+				}
+			]
+		}
+	]
+}
