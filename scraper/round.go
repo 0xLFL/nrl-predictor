@@ -23,18 +23,15 @@ type RoundMatch struct {
 	url string
 }
 
-func (r Round) String() string {
-	matches := "["
-	for i, m := range r.matches {
-		matches += m.String()
-
-		if i < len(r.matches) - 1 {
-			matches += ", "
-		}
-	}
-
-	matches += "]"
-	return fmt.Sprintf("{ \"round\": \"%s\", \"weekIndex\": \"%d\", \"startDay\": \"%s\", \"endDay\": \"%s\", \"matches\": %s}", r.roundName, r.roundIndex, r.startDay, r.endDay, matches)
+func (r *Round) String() string {
+	matches := createListStr(r.matches)
+	return fmt.Sprintf(`{
+		"round": "%s",
+		"weekIndex": "%d",
+		"startDay": "%s",
+		"endDay": "%s",
+		"matches": %s
+	}`, r.roundName, r.roundIndex, r.startDay, r.endDay, matches)
 }
 
 func ExtractAllMatches(html string) ([]RoundMatch, error) {
