@@ -81,7 +81,6 @@ func scrapeRound(round *Round, season *Season, f Fetcher, wg *sync.WaitGroup, st
 		panic(err)
 	}
 
-	writeToFile(content, fmt.Sprintf("%d.html", round.roundIndex))
 	matches, err := ExtractAllMatches(content)
 	if err != nil {
 		panic(err)
@@ -102,10 +101,18 @@ func scrapeRound(round *Round, season *Season, f Fetcher, wg *sync.WaitGroup, st
 		match := &Match{
 			homeTeam: v.homeTeam,
 			awayTeam: v.awayTeam,
+			stats: &MatchStats{
+				posAndComp: &PosAndComp{},
+				attack: &Attack{},
+				passing: &Passing{},
+				kicking: &Kicking{},
+				defence: &Defence{},
+				negPlays: &NegPlays{},
+			},
 		}
 		round.matches = append(round.matches, match)
 	
-		scrapeMatch(match, v.url, f, wg, stats)
+		go scrapeMatch(match, v.url, f, wg, stats)
 	}
 }
 

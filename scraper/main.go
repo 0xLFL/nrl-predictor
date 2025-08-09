@@ -213,7 +213,6 @@ func Scrape(f Fetcher, wg *sync.WaitGroup) (comp Competition) {
 		}
 	}()
 
-	
 	for _, s := range seasons {
 		if s == "2016" {
 			wg.Add(1)
@@ -257,7 +256,7 @@ func ScrapeSeason(season *Season, f Fetcher, wg *sync.WaitGroup, stats *StatsTra
 
 	Reverse(rounds)
 	wg.Add(1)
-	scrapeRounds(rounds, season, f, wg, stats)
+	go scrapeRounds(rounds, season, f, wg, stats)
 	return
 }
 
