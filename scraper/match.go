@@ -3,7 +3,6 @@ package main
 import (
 	"sync"
 	"fmt"
-	"time"
 	"strings"
 	"strconv"
 
@@ -30,120 +29,6 @@ type MatchOffical struct {
 	nameFirst string
 	nameLast string
 	role string
-}
-
-type PosAndComp struct {
-	homePosPer int
-	awayPosPer int
-
-	homePosTime int
-	awayPosTime int
-
-	homeSets int
-	homeSetCompleated int
-
-	awaySets int
-	awaySetsCompleated int
-}
-
-type Attack struct {
-	homeRuns int
-	awayRuns int
-
-	homeRunMeters int
-	awayRunMeters int
-
-	homePostContactMeters int
-	awayPostContactMeters int
-
-	homeLineBreaks int
-	awayLineBreaks int
-
-	homeAvgSetDistance float64
-	awayAvgSetDistance float64
-
-	homeKickReturnMeters int
-	awayKickReturnMeters int
-
-	homeAvgPlayTheBallSpeed int
-	awayAvgPlayTheBallSpeed int
-}
-
-type Passing struct {
-	homeOffloads int
-	awayOffloads int
-
-	homeReceipts int
-	awayReceipts int
-
-	homeTotalPasses int
-	awayTotalPasses int
-
-	homeDummyPasses int
-	awayDummyPasses int
-}
-
-type Kicking struct {
-	homeKicks int
-	awayKicks int
-
-	homeKickingMeters int
-	awayKickingMeters int
-
-	homeForcedDropOuts int
-	awayForcedDropOuts int
-
-	homeKickDefusal int
-	awayKickDefusal int
-
-	homeBombs int
-	awayBombs int
-
-	homeGrubbers int
-	awayGrubbers int
-}
-
-type Defence struct {
-	homeEffecTackle int
-	awayEffecTackle int
-
-	homeTacklesMade int
-	awayTacklesMade int
-
-	homeMissedTackles int
-	awayMissedTackles int
-
-	homeIntercepts int
-	awayIntercepts int
-
-	homeIneffecTackles int
-	awayIneffecTackles int
-}
-
-type NegPlays struct {
-	homeErrors int
-	awayErrors int
-
-	homePenCon int
-	awayPenCon int
-
-	homeRuckInf int
-	awayRuckInf int
-
-	homeInside10 int
-	awayInside10 int
-
-	homeOnReport int
-	awayOnReport int
-}
-
-type MatchStats struct {
-	posAndComp PosAndComp
-	attack Attack
-	passing Passing
-	kicking Kicking
-	defence Defence
-	negPlays NegPlays
 }
 
 type Match struct {
@@ -188,12 +73,10 @@ func (p *Player) String() string {
 	}`, p.nameFirst, p.nameLast, p.position, p.number)
 }
 
-func (m Match) String() string {
+func (m *Match) String() string {
 	homeTeamList := createListStr(m.homeTeamList)
 	awayTeamList := createListStr(m.awayTeamList)
 	playByPlay := createListStr(m.playByPlay)
-
-	fmt.Println(len(m.playByPlay), m.playByPlay)
 
 	return fmt.Sprintf(`
 		{ "homeTeam": "%s",
@@ -207,7 +90,7 @@ func (m Match) String() string {
 		"datePlayed": "%s",
 		"weather":	"%s",
 		"playByPlay": %s,
-		"stats": ""}`,
+		"stats": %s}`,
 		m.homeTeam,
 		m.homeScore,
 		homeTeamList,
@@ -218,103 +101,69 @@ func (m Match) String() string {
 		m.datePlayed,
 		m.weather,
 		playByPlay,
+		m.stats,
 	)
 }
 
 func scrapeMatch(m *Match, url string, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
 	defer wg.Done()
-
-	wg.Add(3)
-	go scrapePlaybyPlay(&m.playByPlay, url, f, wg, stats)
-	go scrapeTeamList(m, url, f, wg, stats)
-	go scrapeMatchStats(m.stats, url, f, wg, stats)
-}
-
-func scrapePlaybyPlay(playByPlay *[]*Play, url string, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
-	defer wg.Done()
-	
 	stats.Start()
 	defer stats.Finish()
 
-	selector := `//a[.//span[contains(text(), "Team Lists")]]`
 	content, err := f.Fetch(
 		fmt.Sprintf("https://www.nrl.com/%s", url),
-		chromedp.Tasks{
-			chromedp.WaitVisible(selector, chromedp.BySearch),
-			chromedp.Click(selector, chromedp.BySearch),
-			chromedp.Sleep(2 * time.Second),
-		},
+		chromedp.Tasks{},
 		true,
 	)
 
-	writeToFile(content, "out.html")
-
-	if err == nil {
-		doc, _ := goquery.NewDocumentFromReader(strings.NewReader(content))
-		doc.Find("div.match-centre-event").Each(func(_ int, b *goquery.Selection) {
-			play := &Play{}
-			b.Find(".match-centre-event__team-name").Each(func(_ int, s *goquery.Selection) {
-				play.team = strings.TrimSpace(s.Text())
-			})
-
-			b.Find(".match-centre-event__title").Each(func(_ int, s *goquery.Selection) {
-				play.play = strings.TrimSpace(s.Text())
-			})
-
-			b.Find("p.u-font-weight-500").Each(func(_ int, s *goquery.Selection) {
-				play.notes = strings.TrimSpace(s.Text())
-			})
-
-			b.Find("span.match-centre-event__timestamp").Each(func(_ int, s *goquery.Selection) {
-				play.time = strings.TrimSpace(s.Text())
-			})
-
-			*playByPlay = append(*playByPlay, play)
-		})
+	if err != nil {
+		return;
 	}
+
+	wg.Add(3)
+	go parseMatchStats(m.stats, content, wg)
+	go parsePlaybyPlay(&m.playByPlay, content, wg)
+	go parseTeamList(m, content, wg)
 }
 
-func scrapeTeamList(m *Match, url string, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
+func parsePlaybyPlay(playByPlay *[]*Play, content string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	stats.Start()
-	defer stats.Finish()
-
-	selector := `//a[.//span[contains(text(), "Team Lists")]]`
-	content, err := f.Fetch(
-			fmt.Sprintf("https://www.nrl.com/%s", url),
-			chromedp.Tasks{
-				chromedp.WaitVisible(selector, chromedp.BySearch),
-				chromedp.Click(selector, chromedp.BySearch),
-				chromedp.Sleep(2 * time.Second),
-			},
-			true,
-	)
-
-	var doc *goquery.Document
-	if err == nil {
-		doc, err = goquery.NewDocumentFromReader(strings.NewReader(content))
-		m.homeTeamList, m.awayTeamList, _ = ExtractTeamPlayers(doc)
-	
-		if len(m.homeTeamList) == 0 || len(m.awayTeamList) == 0 {
-			fmt.Println(content)
-		}
-		
-	} else {
-		content, err = f.Fetch(
-			fmt.Sprintf("https://www.nrl.com/%s", url),
-			chromedp.Tasks{
-				chromedp.Sleep(2 * time.Second),
-			},
-			true,
-		)
-
-		if err == nil {
-			doc, err = goquery.NewDocumentFromReader(strings.NewReader(content))
-		}
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
+	if err != nil {
+		return;
 	}
 
-	if err == nil {
+	doc.Find("div.match-centre-event").Each(func(_ int, b *goquery.Selection) {
+		play := &Play{}
+		b.Find(".match-centre-event__team-name").Each(func(_ int, s *goquery.Selection) {
+			play.team = strings.TrimSpace(s.Text())
+		})
+
+		b.Find(".match-centre-event__title").Each(func(_ int, s *goquery.Selection) {
+			play.play = strings.TrimSpace(s.Text())
+		})
+
+		b.Find(".u-font-weight-500").Each(func(_ int, s *goquery.Selection) {
+			play.notes = strings.TrimSpace(play.notes + " " + strings.Join(strings.Fields(s.Text()), " "))
+		})
+
+		b.Find("span.match-centre-event__timestamp").Each(func(_ int, s *goquery.Selection) {
+			play.time = strings.TrimSpace(s.Text())
+		})
+
+		*playByPlay = append(*playByPlay, play)
+	})
+}
+
+func parseTeamList(m *Match, content string, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	var doc *goquery.Document
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
+	m.homeTeamList, m.awayTeamList, _ = ExtractTeamPlayers(doc)
+
+	if err != nil {
 		sel := doc.Find(".match-team__score.match-team__score--home").First()
 		text := sel.Clone().Children().Remove().End().Text()
 		trimmed := strings.TrimSpace(text)
@@ -350,13 +199,6 @@ func scrapeTeamList(m *Match, url string, f Fetcher, wg *sync.WaitGroup, stats *
 			}
 		})
 	}
-}
-
-func scrapeMatchStats(stats *MatchStats, url string, f Fetcher, wg *sync.WaitGroup, stats_ *StatsTracker) {
-	defer wg.Done()
-
-	stats_.Start()
-	defer stats_.Finish()
 }
 
 func ExtractTeamPlayers(doc *goquery.Document) ([]*Player, []*Player, error) {
