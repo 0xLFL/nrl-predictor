@@ -177,4 +177,3 @@ func parseRoundDates(html string) (string, string, error) {
 
 	return minDate, maxDate, nil
 }
-
