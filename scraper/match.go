@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"strings"
 	"strconv"
+	"context"
+	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/google/uuid"
 )
 
 type Play struct {
@@ -105,10 +108,12 @@ func (m *Match) String() string {
 	)
 }
 
-func scrapeMatch(m *Match, url string, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
+func scrapeMatch(m uuid.UUID, url string, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
 	defer wg.Done()
 	stats.Start()
 	defer stats.Finish()
+
+	fmt.Println(url)
 
 	content, err := f.Fetch(
 		fmt.Sprintf("https://www.nrl.com/%s", url),
@@ -116,17 +121,18 @@ func scrapeMatch(m *Match, url string, f Fetcher, wg *sync.WaitGroup, stats *Sta
 		true,
 	)
 
+	fmt.Println(err)
 	if err != nil {
 		return;
 	}
 
 	wg.Add(3)
-	go parseMatchStats(m.stats, content, wg)
-	go parsePlaybyPlay(&m.playByPlay, content, wg)
+	go parseMatchStats(m, content, wg)
+	go parsePlaybyPlay(m, content, wg)
 	go parseTeamList(m, content, wg)
 }
 
-func parsePlaybyPlay(playByPlay *[]*Play, content string, wg *sync.WaitGroup) {
+func parsePlaybyPlay(matchID uuid.UUID, content string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
@@ -134,7 +140,13 @@ func parsePlaybyPlay(playByPlay *[]*Play, content string, wg *sync.WaitGroup) {
 		return;
 	}
 
-	doc.Find("div.match-centre-event").Each(func(_ int, b *goquery.Selection) {
+	db, err := NewDB()
+	if err != nil {
+		panic(err)
+	}
+	defer db.Conn.Close() 
+
+	doc.Find("div.match-centre-event").Each(func(i int, b *goquery.Selection) {
 		play := &Play{}
 		b.Find(".match-centre-event__team-name").Each(func(_ int, s *goquery.Selection) {
 			play.team = strings.TrimSpace(s.Text())
@@ -152,24 +164,41 @@ func parsePlaybyPlay(playByPlay *[]*Play, content string, wg *sync.WaitGroup) {
 			play.time = strings.TrimSpace(s.Text())
 		})
 
-		*playByPlay = append(*playByPlay, play)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		wg.Add(1)
+		go func () {
+			defer wg.Done()
+			db.CreatePlay(ctx, matchID, i, play.time, play.play, play.team, play.notes)
+		}()
 	})
 }
 
-func parseTeamList(m *Match, content string, wg *sync.WaitGroup) {
+func parseTeamList(matchID uuid.UUID, content string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	var doc *goquery.Document
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
-	m.homeTeamList, m.awayTeamList, _ = ExtractTeamPlayers(doc)
+	homeTeamList, awayTeamList, err := ExtractTeamPlayers(doc)
+
+	db, err := NewDB()
+	if err != nil {
+		return
+	}
+	defer db.Conn.Close() 
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	if err != nil {
+		db.SetTeamLists(ctx, matchID, homeTeamList, awayTeamList)
 		sel := doc.Find(".match-team__score.match-team__score--home").First()
 		text := sel.Clone().Children().Remove().End().Text()
 		trimmed := strings.TrimSpace(text)
 		score, err := strconv.Atoi(trimmed)
 		if err == nil {
-			m.homeScore = score
+			db.SetHomeScore(ctx, matchID, score)
 		}
 
 		sel = doc.Find(".match-team__score.match-team__score--away").First()
@@ -177,25 +206,25 @@ func parseTeamList(m *Match, content string, wg *sync.WaitGroup) {
 		trimmed = strings.TrimSpace(text)
 		score, err = strconv.Atoi(trimmed)
 		if err == nil {
-			m.awayScore = score
+			db.SetAwayScore(ctx, matchID, score)
 		}
 
 		sel = doc.Find(".match-venue.o-text").First()
 		text = sel.Clone().Children().Remove().End().Text()
 		location := strings.TrimSpace(text)
 		if err == nil {
-			m.location = location
+			db.SetLocation(ctx, matchID, location)
 		}
 
 		sel = doc.Find("p.match-header__title").First()
 		dateStr := strings.TrimSpace(sel.Text())
 		if dateStr != "" {
-			m.datePlayed = dateStr
+			db.SetDatePlayed(ctx, matchID, dateStr)
 		}
 
 		doc.Find("p.match-weather__text").Each(func(i int, s *goquery.Selection) {
 			if strings.Contains(s.Text(), "Weather:") {
-				m.weather = strings.TrimSpace(s.Find("span").Text())
+				db.SetWeather(ctx, matchID, strings.TrimSpace(s.Find("span").Text()))
 			}
 		})
 	}

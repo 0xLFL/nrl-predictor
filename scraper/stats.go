@@ -5,8 +5,11 @@ import (
 	"strings"
 	"strconv"
 	"fmt"
+	"context"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/google/uuid"
 )
 
 type MatchStats struct {
@@ -308,28 +311,56 @@ func (np *NegPlays) String() string {
 	)
 }
 
-func parseMatchStats(stats *MatchStats, content string, wg *sync.WaitGroup) {
+func parseMatchStats(matchID uuid.UUID, content string, wg *sync.WaitGroup) {
 	defer wg.Done()
+	fmt.Println(content)
 
 	wg.Add(1)
-	go parsePosAndCompStats(stats.posAndComp, content, wg)
+	go parsePosAndCompStats(matchID, content, wg)
 
-	barChartHandlers := parseAttackStats(stats.attack, content, wg)
-	MergeInto(barChartHandlers, parsePassingStats(stats.passing, content, wg))
-	MergeInto(barChartHandlers, parseKickingStats(stats.kicking, content, wg))
-	MergeInto(barChartHandlers, parseDefenceStats(stats.defence, content, wg))
-	MergeInto(barChartHandlers, parseNegPlayStats(stats.negPlays, content, wg))
+	return
 
-	wg.Add(1)
-	go parseBarChart(barChartHandlers, content, wg)
+	ch := make(chan map[string]func(homeStr, awayStr string))
+	var wgStats sync.WaitGroup
+	var wgHandlers sync.WaitGroup
+
+	wgStats.Add(5)
+	wgHandlers.Add(5)
+
+	go parseAttackStats(matchID, content, ch, &wgStats, &wgHandlers)
+	go parsePassingStats(matchID, content, ch, &wgStats, &wgHandlers)
+	go parseKickingStats(matchID, content, ch, &wgStats, &wgHandlers)
+	go parseDefenceStats(matchID, content, ch, &wgStats, &wgHandlers)
+	go parseNegPlayStats(matchID, content, ch, &wgStats, &wgHandlers)
+
+	// close the channel when all parsers finish
+	go func() {
+		wgHandlers.Wait()
+		close(ch)
+	}()
+
+	mergedHandlers := make(map[string]func(homeStr, awayStr string))
+
+	// collect all handlers from channel
+	for handlerMap := range ch {
+		for k, v := range handlerMap {
+			mergedHandlers[k] = v
+		}
+	}
+
+	go parseBarChart(mergedHandlers, content, &wgStats)
+	wgStats.Wait()
 }
 
-func parsePosAndCompStats(stats *PosAndComp, content string, wg *sync.WaitGroup) {
+func parsePosAndCompStats(matchID uuid.UUID, content string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
+	fmt.Println(doc, err)
 	if err != nil {
 		return;
 	}
+
+	stats := &PosAndComp{}
 
 	doc.Find(".match-centre-card-donut__value--home").Each(func(_ int, s *goquery.Selection) {
 		posStr := strings.TrimSpace(s.Text())
@@ -378,43 +409,84 @@ func parsePosAndCompStats(stats *PosAndComp, content string, wg *sync.WaitGroup)
 
 		return true
 	})
+
+	db, err := NewDB()
+	if err != nil {
+		return
+	}
+	defer db.Conn.Close() 
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	fmt.Println(stats)
+	db.SetPosAndCompStats(ctx, matchID, stats)
 }
 
-func parseAttackStats(a *Attack, content string, wg *sync.WaitGroup) (handlers map[string]func(string, string)) {
-	handlers = map[string]func(string, string) {
+func parseAttackStats(
+	matchID uuid.UUID,
+	content string,
+	ch chan map[string]func(homeStr, awayStr string),
+	wgStats *sync.WaitGroup,
+	wgHandlers *sync.WaitGroup,
+) (error) {
+	defer wgStats.Done()
+	a := &Attack{}
+	
+	var handlersComplete *sync.WaitGroup
+	handlers := map[string]func(string, string) {
 		"All Runs": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			a.homeRuns, _ = strconv.Atoi(homeStr)
 			a.awayRuns, _ = strconv.Atoi(awayStr)
 		},
 		"All Run Metres": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+
 			a.homeRunMeters, _ = strconv.Atoi(homeStr)
 			a.awayRunMeters, _ = strconv.Atoi(awayStr)
 		},
 		"Post Contact Metres": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+
 			a.homePostContactMeters, _ = strconv.Atoi(homeStr)
 			a.awayPostContactMeters, _ = strconv.Atoi(awayStr)
 		},
 		"Line Breaks": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+
 			a.homeLineBreaks, _ = strconv.Atoi(homeStr)
 			a.awayLineBreaks, _ = strconv.Atoi(awayStr)
 		},
 		"Tackle Breaks": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+
 			a.homeTackleBreaks, _ = strconv.Atoi(homeStr)
 			a.awayTackleBreaks, _ = strconv.Atoi(awayStr)
 		},
 		"Average Set Distance": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+
 			a.homeAvgSetDistance, _ = strconv.ParseFloat(homeStr, 64)
 			a.awayAvgSetDistance, _ = strconv.ParseFloat(awayStr, 64)
 		},
 		"Kick Return Metres": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+
 			a.homeKickReturnMeters, _ = strconv.Atoi(homeStr)
 			a.awayKickReturnMeters, _ = strconv.Atoi(awayStr)
 		},
 	}
 
-	wg.Add(1)
+	handlersComplete.Add(len(handlers))
+
+	ch <- handlers
+	wgHandlers.Done()
+
+	handlersComplete.Add(1)
 	go func () {
-		defer wg.Done()
+		defer handlersComplete.Done()
 
 		doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
 		if err != nil {
@@ -440,59 +512,129 @@ func parseAttackStats(a *Attack, content string, wg *sync.WaitGroup) (handlers m
 		})
 	}()
 
-	return
+	handlersComplete.Wait()
+
+	db, err := NewDB()
+	if err != nil {
+		return err
+	}
+	defer db.Conn.Close() 
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return db.SetAttackStats(ctx, matchID, a)
 }
 
-func parsePassingStats(p *Passing, content string, wg *sync.WaitGroup) (handlers map[string]func(string, string)) {
-	handlers = map[string]func(string, string){
+func parsePassingStats(
+	matchID uuid.UUID,
+	content string,
+	ch chan map[string]func(homeStr, awayStr string),
+	wgStats *sync.WaitGroup,
+	wgHandlers *sync.WaitGroup,
+) (error) {
+	defer wgStats.Done()
+	p := &Passing{}
+
+	var handlersComplete *sync.WaitGroup
+	handlers := map[string]func(string, string){
 		"Offloads": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			p.homeOffloads, _ = strconv.Atoi(homeStr)
 			p.awayOffloads, _ = strconv.Atoi(awayStr)
 		},
 		"Receipts": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			p.homeReceipts, _ = strconv.Atoi(homeStr)
 			p.awayReceipts, _ = strconv.Atoi(awayStr)
 		},
 		"Total Passes": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			p.homeTotalPasses, _ = strconv.Atoi(homeStr)
 			p.awayTotalPasses, _ = strconv.Atoi(awayStr)
 		},
 		"Dummy Passes": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			p.homeDummyPasses, _ = strconv.Atoi(homeStr)
 			p.awayDummyPasses, _ = strconv.Atoi(awayStr)
 		},
 	}
 
-	return
+	handlersComplete.Add(len(handlers))
+
+	ch <- handlers
+	wgHandlers.Done()
+
+	handlersComplete.Wait()
+
+	db, err := NewDB()
+	if err != nil {
+		return err
+	}
+	defer db.Conn.Close() 
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return db.SetPassingStats(ctx, matchID, p)
 }
 
-func parseKickingStats(k *Kicking, content string, wg *sync.WaitGroup) (handlers map[string]func(string, string)) {
-	handlers = map[string]func(string, string){
+func parseKickingStats(
+	matchID uuid.UUID,
+	content string,
+	ch chan map[string]func(homeStr, awayStr string),
+	wgStats *sync.WaitGroup,
+	wgHandlers *sync.WaitGroup,
+) (error) {
+	defer wgStats.Done()
+
+	k := &Kicking{}
+	var handlersComplete *sync.WaitGroup
+	handlers := map[string]func(string, string){
 		"Kicks": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			k.homeKicks, _ = strconv.Atoi(homeStr)
 			k.awayKicks, _ = strconv.Atoi(awayStr)
 		},
 		"Kicking Metres": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			k.homeKickingMeters, _ = strconv.Atoi(homeStr)
 			k.awayKickingMeters, _ = strconv.Atoi(awayStr)
 		},
 		"Forced Drop Outs": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			k.homeForcedDropOuts, _ = strconv.Atoi(homeStr)
 			k.awayForcedDropOuts, _ = strconv.Atoi(awayStr)
 		},
 		"Bombs": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			k.homeBombs, _ = strconv.Atoi(homeStr)
 			k.awayBombs, _ = strconv.Atoi(awayStr)
 		},
 		"Grubbers": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			k.homeGrubbers, _ = strconv.Atoi(homeStr)
 			k.awayGrubbers, _ = strconv.Atoi(awayStr)
 		},
 	}
 
-	wg.Add(1)
+	handlersComplete.Add(len(handlers))
+
+	ch <- handlers
+	wgHandlers.Done()
+
+	handlersComplete.Add(1)
 	go func () {
-		defer wg.Done()
+		defer handlersComplete.Done()
 
 		doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
 		if err != nil {
@@ -518,32 +660,66 @@ func parseKickingStats(k *Kicking, content string, wg *sync.WaitGroup) (handlers
 		})
 	}()
 
-	return
+	handlersComplete.Wait()
+
+	db, err := NewDB()
+	if err != nil {
+		return err
+	}
+	defer db.Conn.Close() 
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return db.SetKickingStats(ctx, matchID, k)
 }
 
-func parseDefenceStats(d *Defence, content string, wg *sync.WaitGroup) (handlers map[string]func(string, string)) {
-	handlers = map[string]func(string, string){
+func parseDefenceStats(
+	matchID uuid.UUID,
+	content string,
+	ch chan map[string]func(homeStr, awayStr string),
+	wgStats *sync.WaitGroup,
+	wgHandlers *sync.WaitGroup,
+) (error) {
+	defer wgStats.Done()
+
+	d := &Defence{}
+	var handlersComplete *sync.WaitGroup
+	handlers := map[string]func(string, string){
 		"Tackles Made": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			d.homeTacklesMade, _ = strconv.Atoi(homeStr)
 			d.awayTacklesMade, _ = strconv.Atoi(awayStr)
 		},
 		"Missed Tackles": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			d.homeMissedTackles, _ = strconv.Atoi(homeStr)
 			d.awayMissedTackles, _ = strconv.Atoi(awayStr)
 		},
 		"Ineffective Tackles": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			d.homeIneffecTackles, _ = strconv.Atoi(homeStr)
 			d.awayIneffecTackles, _ = strconv.Atoi(awayStr)
 		},
 		"Intercepts": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			d.homeIntercepts, _ = strconv.Atoi(homeStr)
 			d.awayIntercepts, _ = strconv.Atoi(awayStr)
 		},
 	}
 
-	wg.Add(1)
+	handlersComplete.Add(len(handlers))
+
+	ch <- handlers
+	wgHandlers.Done()
+
+	handlersComplete.Add(1)
 	go func () {
-		defer wg.Done()
+		defer handlersComplete.Done()
 
 		doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
 		if err != nil {
@@ -569,34 +745,81 @@ func parseDefenceStats(d *Defence, content string, wg *sync.WaitGroup) (handlers
 		})
 	}()
 
-	return
+	handlersComplete.Wait()
+
+	db, err := NewDB()
+	if err != nil {
+		return err
+	}
+	defer db.Conn.Close() 
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return db.SetDefenceStats(ctx, matchID, d)
 }
 
-func parseNegPlayStats(ng *NegPlays, content string, wg *sync.WaitGroup) (handlers map[string]func(string, string)) {
-	handlers = map[string]func(string, string){
+func parseNegPlayStats(
+	matchID uuid.UUID,
+	content string,
+	ch chan map[string]func(homeStr, awayStr string),
+	wgStats *sync.WaitGroup,
+	wgHandlers *sync.WaitGroup,
+) (error) {
+	defer wgStats.Done()
+	
+	ng := &NegPlays{}
+	var handlersComplete *sync.WaitGroup
+	handlers := map[string]func(string, string){
 		"Errors": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			ng.homeErrors, _ = strconv.Atoi(homeStr)
 			ng.awayErrors, _ = strconv.Atoi(awayStr)
 		},
 		"Penalties Conceded": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			ng.homePenCon, _ = strconv.Atoi(homeStr)
 			ng.awayPenCon, _ = strconv.Atoi(awayStr)
 		},
 		"Ruck Infringements": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			ng.homeRuckInf, _ = strconv.Atoi(homeStr)
 			ng.awayRuckInf, _ = strconv.Atoi(awayStr)
 		},
 		"Inside 10 Metres": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			ng.homeInside10, _ = strconv.Atoi(homeStr)
 			ng.awayInside10, _ = strconv.Atoi(awayStr)
 		},
 		"On Reports": func(homeStr string, awayStr string) {
+			defer handlersComplete.Done()
+	
 			ng.homeOnReport, _ = strconv.Atoi(homeStr)
 			ng.awayOnReport, _ = strconv.Atoi(awayStr)
 		},
 	}
 
-	return
+	handlersComplete.Add(len(handlers))
+
+	ch <- handlers
+	wgHandlers.Done()
+
+	handlersComplete.Wait()
+
+	db, err := NewDB()
+	if err != nil {
+		return err
+	}
+	defer db.Conn.Close() 
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	return db.SetNegPlayStats(ctx, matchID, ng)
 }
 
 func parseBarChart(handlers map[string]func(string, string), content string, wg *sync.WaitGroup) {

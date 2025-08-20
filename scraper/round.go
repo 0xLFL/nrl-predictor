@@ -4,9 +4,12 @@ import (
 	"sync"
 	"fmt"
 	"strings"
+	"context"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/chromedp"
+	"github.com/google/uuid"
 )
 
 type Round struct {
@@ -65,69 +68,85 @@ func ExtractAllMatches(html string) ([]RoundMatch, error) {
 	return matches, nil
 }
 
-func scrapeRound(round *Round, season *Season, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
+func scrapeRound(roundIndex int, season string, roundID uuid.UUID, compID int, datesSet bool, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
 	defer wg.Done()
 	stats.Start()
 	defer stats.Finish()
 
+	fmt.Println(roundIndex)
+
 	content, err := f.Fetch(
-		fmt.Sprintf("https://www.nrl.com/draw/?competition=111&round=%v&season=%s", round.roundIndex, season.year),
+		fmt.Sprintf("https://www.nrl.com/draw/?competition=%d&round=%d&season=%s", compID, roundIndex, season),
 		chromedp.Tasks{},
 		true,
 	)
 
 	if err != nil {
-		fmt.Println(round, season)
-		panic(err)
+		return
 	}
 
 	matches, err := ExtractAllMatches(content)
 	if err != nil {
-		panic(err)
+		return
 	}
 
-	start, end, err := parseRoundDates(content)
+	if !datesSet {
+		start, end, err := parseRoundDates(content)
+		if err != nil {
+			return
+		}
+
+		db, err := NewDB()
+		if err != nil {
+			return
+		}
+		defer db.Conn.Close() 
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		fmt.Println(roundID, start, end)
+		db.SetRoundDates(ctx, roundID, start, end)
+	}
+
+  db, err := NewDB()
 	if err != nil {
-		panic(err)
+		return
 	}
-
-	round.startDay = start
-	round.endDay = end
-	fmt.Printf("days saved, %s, %s", start, end)
-	fmt.Println(matches)
+	defer db.Conn.Close() 
 
 	for _, v := range matches {
-		wg.Add(1)
-		match := &Match{
-			homeTeam: v.homeTeam,
-			awayTeam: v.awayTeam,
-			stats: &MatchStats{
-				posAndComp: &PosAndComp{},
-				attack: &Attack{},
-				passing: &Passing{},
-				kicking: &Kicking{},
-				defence: &Defence{},
-				negPlays: &NegPlays{},
-			},
-		}
-		round.matches = append(round.matches, match)
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		matchID, err := db.CreateMatch(ctx, roundID, v.homeTeam,v.awayTeam)
 	
-		go scrapeMatch(match, v.url, f, wg, stats)
+		if err == nil {
+			wg.Add(1)
+			go scrapeMatch(matchID, v.url, f, wg, stats)
+		}
 	}
 }
 
-func scrapeRounds(rounds []string, season *Season, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
+func scrapeRounds(rounds []string, season string, seasonID uuid.UUID, compID int, f Fetcher, wg *sync.WaitGroup, stats *StatsTracker) {
 	defer wg.Done()
 	stats.Start()
 	defer stats.Finish()
 
-	for i, v := range rounds {
-		if (i == 0) {
-			wg.Add(1)
+	db, err := NewDB()
+	if err != nil {
+		return
+	}
+	defer db.Conn.Close() 
 
-			round := &Round{roundName: v, roundIndex: i + 1 }
-			season.rounds = append(season.rounds, round)
-			go scrapeRound(round, season, f, wg, stats)
+	for i, v := range rounds {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		roundID, datesSet, err := db.CreateRound(ctx, i + 1, v, seasonID)
+
+		if err == nil {
+			wg.Add(1)
+			fmt.Println(datesSet)
+			go scrapeRound(i + 1, season, roundID, compID, datesSet, f, wg, stats)
 		}
 	}
 }
@@ -158,3 +177,4 @@ func parseRoundDates(html string) (string, string, error) {
 
 	return minDate, maxDate, nil
 }
+
