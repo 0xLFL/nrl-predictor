@@ -63,7 +63,7 @@ CREATE TABLE match_official (
     match_id UUID NOT NULL REFERENCES match(id) ON DELETE CASCADE,
     name_first VARCHAR(100) NOT NULL,
     name_last VARCHAR(100) NOT NULL,
-    role VARCHAR(100)
+    role VARCHAR(100) DEFAULT ''
 );
 
 CREATE TABLE play_by_play (
