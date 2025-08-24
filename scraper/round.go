@@ -13,6 +13,7 @@ import (
 )
 
 type Round struct {
+	id uuid.UUID
 	matches []*Match
 	startDay string
 	endDay string
@@ -73,8 +74,6 @@ func scrapeRound(roundIndex int, season string, roundID uuid.UUID, compID int, d
 	stats.Start()
 	defer stats.Finish()
 
-	fmt.Println(roundIndex)
-
 	content, err := f.Fetch(
 		fmt.Sprintf("https://www.nrl.com/draw/?competition=%d&round=%d&season=%s", compID, roundIndex, season),
 		chromedp.Tasks{},
@@ -105,7 +104,6 @@ func scrapeRound(roundIndex int, season string, roundID uuid.UUID, compID int, d
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		fmt.Println(roundID, start, end)
 		db.SetRoundDates(ctx, roundID, start, end)
 	}
 
@@ -143,9 +141,8 @@ func scrapeRounds(rounds []string, season string, seasonID uuid.UUID, compID int
 		defer cancel()
 		roundID, datesSet, err := db.CreateRound(ctx, i + 1, v, seasonID)
 
-		if err == nil {
+		if err == nil && i == 0 {
 			wg.Add(1)
-			fmt.Println(datesSet)
 			go scrapeRound(i + 1, season, roundID, compID, datesSet, f, wg, stats)
 		}
 	}

@@ -313,12 +313,9 @@ func (np *NegPlays) String() string {
 
 func parseMatchStats(matchID uuid.UUID, content string, wg *sync.WaitGroup) {
 	defer wg.Done()
-	fmt.Println(content)
 
 	wg.Add(1)
 	go parsePosAndCompStats(matchID, content, wg)
-
-	return
 
 	ch := make(chan map[string]func(homeStr, awayStr string))
 	var wgStats sync.WaitGroup
@@ -348,14 +345,13 @@ func parseMatchStats(matchID uuid.UUID, content string, wg *sync.WaitGroup) {
 		}
 	}
 
-	go parseBarChart(mergedHandlers, content, &wgStats)
+	parseBarChart(mergedHandlers, content)
 	wgStats.Wait()
 }
 
 func parsePosAndCompStats(matchID uuid.UUID, content string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
-	fmt.Println(doc, err)
 	if err != nil {
 		return;
 	}
@@ -419,7 +415,6 @@ func parsePosAndCompStats(matchID uuid.UUID, content string, wg *sync.WaitGroup)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	fmt.Println(stats)
 	db.SetPosAndCompStats(ctx, matchID, stats)
 }
 
@@ -433,7 +428,7 @@ func parseAttackStats(
 	defer wgStats.Done()
 	a := &Attack{}
 	
-	var handlersComplete *sync.WaitGroup
+	var handlersComplete sync.WaitGroup
 	handlers := map[string]func(string, string) {
 		"All Runs": func(homeStr string, awayStr string) {
 			defer handlersComplete.Done()
@@ -536,7 +531,7 @@ func parsePassingStats(
 	defer wgStats.Done()
 	p := &Passing{}
 
-	var handlersComplete *sync.WaitGroup
+	var handlersComplete sync.WaitGroup
 	handlers := map[string]func(string, string){
 		"Offloads": func(homeStr string, awayStr string) {
 			defer handlersComplete.Done()
@@ -593,7 +588,7 @@ func parseKickingStats(
 	defer wgStats.Done()
 
 	k := &Kicking{}
-	var handlersComplete *sync.WaitGroup
+	var handlersComplete sync.WaitGroup
 	handlers := map[string]func(string, string){
 		"Kicks": func(homeStr string, awayStr string) {
 			defer handlersComplete.Done()
@@ -684,7 +679,7 @@ func parseDefenceStats(
 	defer wgStats.Done()
 
 	d := &Defence{}
-	var handlersComplete *sync.WaitGroup
+	var handlersComplete sync.WaitGroup
 	handlers := map[string]func(string, string){
 		"Tackles Made": func(homeStr string, awayStr string) {
 			defer handlersComplete.Done()
@@ -769,7 +764,7 @@ func parseNegPlayStats(
 	defer wgStats.Done()
 	
 	ng := &NegPlays{}
-	var handlersComplete *sync.WaitGroup
+	var handlersComplete sync.WaitGroup
 	handlers := map[string]func(string, string){
 		"Errors": func(homeStr string, awayStr string) {
 			defer handlersComplete.Done()
@@ -822,9 +817,7 @@ func parseNegPlayStats(
 	return db.SetNegPlayStats(ctx, matchID, ng)
 }
 
-func parseBarChart(handlers map[string]func(string, string), content string, wg *sync.WaitGroup) {
-	defer wg.Done()
-
+func parseBarChart(handlers map[string]func(string, string), content string) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
 	if err != nil {
 		return;

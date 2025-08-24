@@ -35,6 +35,8 @@ type MatchOffical struct {
 }
 
 type Match struct {
+	id uuid.UUID
+
 	homeTeam string
 	homeScore int
 	homeTeamList []*Player
@@ -113,15 +115,12 @@ func scrapeMatch(m uuid.UUID, url string, f Fetcher, wg *sync.WaitGroup, stats *
 	stats.Start()
 	defer stats.Finish()
 
-	fmt.Println(url)
-
 	content, err := f.Fetch(
 		fmt.Sprintf("https://www.nrl.com/%s", url),
 		chromedp.Tasks{},
 		true,
 	)
 
-	fmt.Println(err)
 	if err != nil {
 		return;
 	}

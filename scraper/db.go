@@ -148,7 +148,7 @@ func (db *DB) CreateMatch(ctx context.Context, roundID uuid.UUID, homeTeam, away
         INSERT INTO match (id, round_id, home_team, away_team)
         VALUES ($1, $2, $3, $4)
         ON CONFLICT (round_id, home_team, away_team)
-        DO NOTHING
+        DO UPDATE SET home_team = EXCLUDED.home_team
         RETURNING id
     `,
         uuid.New(), roundID, homeTeam, awayTeam,
@@ -348,7 +348,7 @@ func (db *DB) SetWeather(ctx context.Context, matchID uuid.UUID, weather string)
 
 func (db *DB) SetPosAndCompStats(ctx context.Context, matchID uuid.UUID, stats *PosAndComp) error {
     query := `
-        INSERT INTO match_stats (
+        INSERT INTO pos_and_comp (
             match_id,
             home_pos_per, away_pos_per,
             home_pos_time, away_pos_time,
@@ -384,7 +384,7 @@ func (db *DB) SetPosAndCompStats(ctx context.Context, matchID uuid.UUID, stats *
 func (db *DB) SetAttackStats(ctx context.Context, matchID uuid.UUID, a *Attack) error {
     // Using INSERT ... ON CONFLICT to upsert
     query := `
-        INSERT INTO attack_stats (
+        INSERT INTO attack (
             match_id,
             home_runs, away_runs,
             home_run_meters, away_run_meters,
@@ -429,7 +429,7 @@ func (db *DB) SetAttackStats(ctx context.Context, matchID uuid.UUID, a *Attack) 
 
 func (db *DB) SetPassingStats(ctx context.Context, matchID uuid.UUID, p *Passing) error {
     query := `
-        INSERT INTO passing_stats (
+        INSERT INTO passing (
             match_id,
             home_offloads, away_offloads,
             home_receipts, away_receipts,
@@ -462,7 +462,7 @@ func (db *DB) SetPassingStats(ctx context.Context, matchID uuid.UUID, p *Passing
 
 func (db *DB) SetKickingStats(ctx context.Context, matchID uuid.UUID, k *Kicking) error {
     query := `
-        INSERT INTO kicking_stats (
+        INSERT INTO kicking (
             match_id,
             home_kicks, away_kicks,
             home_kicking_meters, away_kicking_meters,
@@ -503,7 +503,7 @@ func (db *DB) SetKickingStats(ctx context.Context, matchID uuid.UUID, k *Kicking
 
 func (db *DB) SetDefenceStats(ctx context.Context, matchID uuid.UUID, d *Defence) error {
     query := `
-        INSERT INTO defence_stats (
+        INSERT INTO defence (
             match_id,
             home_effec_tackle, away_effec_tackle,
             home_tackles_made, away_tackles_made,
@@ -511,7 +511,7 @@ func (db *DB) SetDefenceStats(ctx context.Context, matchID uuid.UUID, d *Defence
             home_intercepts, away_intercepts,
             home_ineffec_tackles, away_ineffec_tackles
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
         ON CONFLICT (match_id)
         DO UPDATE SET
             home_effec_tackle = EXCLUDED.home_effec_tackle,
@@ -540,7 +540,7 @@ func (db *DB) SetDefenceStats(ctx context.Context, matchID uuid.UUID, d *Defence
 
 func (db *DB) SetNegPlayStats(ctx context.Context, matchID uuid.UUID, ng *NegPlays) error {
     query := `
-        INSERT INTO neg_play_stats (
+        INSERT INTO neg_plays (
             match_id,
             home_errors, away_errors,
             home_pen_con, away_pen_con,
@@ -575,5 +575,380 @@ func (db *DB) SetNegPlayStats(ctx context.Context, matchID uuid.UUID, ng *NegPla
     return err
 }
 
+func (db *DB) GetCompetition(id int) ([]Competition, error) {
+	rows, err := db.Conn.Query("SELECT id, name FROM competition WHERE id = $1", id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
+	var comps []Competition
+	for rows.Next() {
+        var c Competition
+        if err := rows.Scan(&c.id, &c.name); err != nil {
+            return []Competition{}, err
+        }
+    
+        c.seasons, err = db.GetSeasons(c.id)
+        if err != nil {
+            return []Competition{}, err
+        }
+        comps = append(comps, c)
+    }
+	if err := rows.Err(); err != nil {
+		return []Competition{}, err
+	}
 
+	return comps, nil
+}
+
+func (db *DB) GetSeasons(compId int) ([]*Season, error) {
+	rows, err := db.Conn.Query("SELECT year, id FROM season WHERE competition_id = $1", compId)
+	if err != nil {
+		return []*Season{}, err
+	}
+	defer rows.Close()
+
+	var seasons []*Season
+	for rows.Next() {
+		var s Season
+		if err := rows.Scan(&s.year, &s.id); err != nil {
+			return []*Season{}, err
+		}
+		s.rounds, err = db.GetRounds(s.id)
+		seasons = append(seasons, &s)
+	}
+	if err := rows.Err(); err != nil {
+		return []*Season{}, err
+	}
+
+	return seasons, nil
+}
+
+func (db *DB) GetRounds(seasonId uuid.UUID) ([]*Round, error) {
+	rows, err := db.Conn.Query("SELECT id, start_day, end_day, round_name, round_index FROM round WHERE season_id = $1", seasonId)
+	if err != nil {
+		return []*Round{}, err
+	}
+	defer rows.Close()
+
+	var rounds []*Round
+	for rows.Next() {
+		var r Round
+		if err := rows.Scan(&r.id, &r.startDay, &r.endDay, &r.roundName, &r.roundIndex); err != nil {
+			return []*Round{}, err
+		}
+		r.matches, err = db.GetMatches(r.id)
+		rounds = append(rounds, &r)
+	}
+	if err := rows.Err(); err != nil {
+		return []*Round{}, err
+	}
+
+	return rounds, nil
+}
+
+func (db *DB) GetMatches(roundId uuid.UUID) ([]*Match, error) {
+	rows, err := db.Conn.Query(`
+		SELECT
+			id,
+			home_team,
+			away_team,
+			home_score,
+			away_score,
+			location,
+			kickoff_time,
+			date_played,
+			weather
+		FROM
+			match
+		WHERE
+			round_id = $1
+	`, roundId)
+
+	if err != nil {
+		return []*Match{}, err
+	}
+	defer rows.Close()
+
+	var matches []*Match
+	for rows.Next() {
+		var m Match
+		if err := rows.Scan(
+				&m.id,
+				&m.homeTeam,
+				&m.awayTeam,
+				&m.homeScore,
+				&m.awayScore,
+				&m.location,
+				&m.kickoffTime,
+				&m.datePlayed,
+				&m.weather,
+			); err != nil {
+			return []*Match{}, err
+		}
+	
+        m.stats = db.GetMatchStats(m.id)
+		matches = append(matches, &m)
+	}
+	if err := rows.Err(); err != nil {
+		return []*Match{}, err
+	}
+
+	return matches, nil
+}
+
+func (db *DB) GetMatchStats(matchId uuid.UUID) (s *MatchStats) {
+    s = &MatchStats{}
+    s.posAndComp, _ = db.GetPosAndCompStats(matchId)
+	s.attack, _ = db.GetAttackStats(matchId)
+	s.passing, _ = db.GetPassingStats(matchId)
+	s.kicking, _ = db.GetKickingStats(matchId)
+	s.defence, _ = db.GetDefenceStats(matchId)
+	s.negPlays, _ = db.GetNegPlaysStats(matchId)
+
+	return
+}
+
+func (db *DB) GetPosAndCompStats(matchId uuid.UUID) (*PosAndComp, error) {
+	stats := &PosAndComp{}
+
+	err := db.Conn.QueryRow(`
+		SELECT
+            home_pos_per,
+			away_pos_per,
+			home_pos_time,
+			away_pos_time,
+			home_sets,
+			home_sets_completed,
+			away_sets,
+			away_sets_completed
+		FROM
+            pos_and_comp
+		WHERE
+			match_id = $1
+	`, matchId).Scan(
+		&stats.homePosPer,
+		&stats.awayPosPer,
+		&stats.homePosTime,
+		&stats.awayPosTime,
+		&stats.homeSets,
+		&stats.homeSetsCompleated,
+		&stats.awaySets,
+		&stats.awaySetsCompleated,
+	)
+
+	if err != nil {
+		return &PosAndComp{}, err
+	}
+
+	return stats, nil
+}
+
+func (db *DB) GetAttackStats(matchId uuid.UUID) (*Attack, error) {
+	stats := &Attack{}
+
+	err := db.Conn.QueryRow(`
+		SELECT
+            home_runs,
+			away_runs,
+			home_run_meters,
+			away_run_meters,
+			home_post_contact_meters,
+			away_post_contact_meters,
+			home_line_breaks,
+			away_line_breaks,
+            home_tackle_breaks,
+            away_tackle_breaks,
+            home_avg_set_distance,
+            away_avg_set_distance,
+            home_kick_return_meters,
+            away_kick_return_meters,
+            home_avg_play_the_ball_speed,
+            away_avg_play_the_ball_speed
+		FROM
+			attack
+		WHERE
+			match_id = $1
+	`, matchId).Scan(
+		&stats.homeRuns,
+		&stats.awayRuns,
+        &stats.homeRunMeters,
+		&stats.awayRunMeters,
+		&stats.homePostContactMeters,
+		&stats.awayPostContactMeters,
+		&stats.homeLineBreaks,
+		&stats.awayLineBreaks,
+		&stats.homeTackleBreaks,
+		&stats.awayTackleBreaks,
+        &stats.homeAvgSetDistance,
+		&stats.awayAvgSetDistance,
+        &stats.homeKickReturnMeters,
+		&stats.awayKickReturnMeters,
+        &stats.homeAvgPlayTheBallSpeed,
+		&stats.awayAvgPlayTheBallSpeed,
+	)
+
+    fmt.Println(stats, err)
+	if err != nil {
+		return &Attack{}, err
+	}
+
+	return stats, nil
+}
+
+func (db *DB) GetPassingStats(matchId uuid.UUID) (*Passing, error) {
+	stats := &Passing{}
+
+	err := db.Conn.QueryRow(`
+		SELECT
+            home_offloads,
+            away_offloads,
+            home_receipts,
+            away_receipts,
+            home_total_passes,
+            away_total_passes,
+            home_dummy_passes,
+            away_dummy_passes
+		FROM
+			passing
+		WHERE
+			match_id = $1
+	`, matchId).Scan(
+		&stats.homeOffloads,
+		&stats.awayOffloads,
+        &stats.homeReceipts,
+		&stats.awayReceipts,
+		&stats.homeTotalPasses,
+		&stats.awayTotalPasses,
+		&stats.homeDummyPasses,
+		&stats.awayDummyPasses,
+	)
+
+	if err != nil {
+		return &Passing{}, err
+	}
+
+	return stats, nil
+}
+
+func (db *DB) GetKickingStats(matchId uuid.UUID) (*Kicking, error) {
+	stats := &Kicking{}
+    
+	err := db.Conn.QueryRow(`
+		SELECT
+            home_kicks,
+            away_kicks,
+            home_kicking_meters,
+            away_kicking_meters,
+            home_forced_drop_outs,
+            away_forced_drop_outs,
+            home_kick_defusal,
+            home_kick_defusal,
+            home_bombs,
+            away_bombs,
+            home_grubbers,
+            away_grubbers
+		FROM
+			kicking
+		WHERE
+			match_id = $1
+	`, matchId).Scan(
+		&stats.homeKicks,
+		&stats.awayKicks,
+        &stats.homeKickingMeters,
+		&stats.awayKickingMeters,
+		&stats.homeForcedDropOuts,
+		&stats.awayForcedDropOuts,
+		&stats.homeKickDefusal,
+		&stats.awayKickDefusal,
+        &stats.homeBombs,
+		&stats.awayBombs,
+		&stats.homeGrubbers,
+		&stats.awayGrubbers,
+	)
+
+	if err != nil {
+		return &Kicking{}, err
+	}
+
+	return stats, nil
+}
+
+func (db *DB) GetDefenceStats(matchId uuid.UUID) (*Defence, error) {
+	stats := &Defence{}
+
+	err := db.Conn.QueryRow(`
+		SELECT
+            home_effec_tackle,
+            away_effec_tackle,
+            home_tackles_made,
+            away_tackles_made,
+            home_missed_tackles,
+            away_missed_tackles,
+            home_intercepts,
+            away_intercepts,
+            home_ineffec_tackles,
+            away_ineffec_tackles
+		FROM
+			defence
+		WHERE
+			match_id = $1
+	`, matchId).Scan(
+		&stats.homeEffecTackle,
+		&stats.awayEffecTackle,
+        &stats.homeTacklesMade,
+		&stats.awayTacklesMade,
+		&stats.homeMissedTackles,
+		&stats.awayMissedTackles,
+		&stats.homeIntercepts,
+		&stats.awayIntercepts,
+        &stats.homeIneffecTackles,
+		&stats.awayIneffecTackles,
+	)
+
+	if err != nil {
+		return &Defence{}, err
+	}
+
+	return stats, nil
+}
+
+func (db *DB) GetNegPlaysStats(matchId uuid.UUID) (*NegPlays, error) {
+	stats := &NegPlays{}
+
+	err := db.Conn.QueryRow(`
+		SELECT
+            home_errors,
+            away_errors,
+            home_pen_con,
+            away_pen_con,
+            home_ruck_inf,
+            away_ruck_inf,
+            home_inside10,
+            away_inside10,
+            home_on_report,
+            away_on_report
+		FROM
+            neg_plays
+		WHERE
+			match_id = $1
+	`, matchId).Scan(
+		&stats.homeErrors,
+		&stats.awayErrors,
+        &stats.homePenCon,
+		&stats.awayPenCon,
+		&stats.homeRuckInf,
+		&stats.awayRuckInf,
+		&stats.homeInside10,
+		&stats.awayInside10,
+        &stats.homeOnReport,
+		&stats.awayOnReport,
+	)
+
+	if err != nil {
+		return &NegPlays{}, err
+	}
+
+	return stats, nil
+}

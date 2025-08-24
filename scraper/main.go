@@ -13,12 +13,15 @@ import (
 )
 
 type Season struct {
+	id uuid.UUID
 	year string
 	rounds []*Round
 }
 
 type Competition struct {
-	seasons map[string]*Season
+	id int
+	name string
+	seasons []*Season
 }
 
 type Fetcher interface {
@@ -186,7 +189,7 @@ func (PageFetcher) IsCached(url string) (int) {
 }
 
 func main() {
-	var wg sync.WaitGroup
+	/*var wg sync.WaitGroup
 	fetcher, err := NewPageFetcher(10)
 	
 	if err != nil {
@@ -194,7 +197,16 @@ func main() {
 		return
 	}
 
-	Scrape(111, fetcher, &wg)
+	Scrape(111, fetcher, &wg)*/
+
+	db, err := NewDB()
+	if err != nil {
+		panic(err)
+	}
+
+	defer db.Conn.Close()
+	comp, _ := db.GetCompetition(111)
+	writeToFile(fmt.Sprint(comp), "/app/output/results.json")
 }
 
 func Scrape(compID int, f Fetcher, wg *sync.WaitGroup) (comp Competition) {
@@ -252,8 +264,7 @@ func ScrapeSeason(compID int, season string, seasonID uuid.UUID, f Fetcher, wg *
 	stats.Start()
 	defer stats.Finish()
 
-	fmt.Println(season)
-	if season != "2016" {
+	if season != "2024" {
 		return
 	}
 
